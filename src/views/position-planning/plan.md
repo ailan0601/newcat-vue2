@@ -310,3 +310,159 @@
 ### 3.2 明细弹窗功能说明
 - 金额/笔数点击弹窗显示明细
 - 需要展示详细的交易明细信息
+
+## 四、代码结构设计
+
+### 4.1 组件层级结构
+
+```
+PositionPlanning.vue (主页面组件)
+├── FilterSection.vue (顶部筛选区域组件)
+│   └── ProductManagement.vue (产品管理弹窗)
+│       └── BlockName.vue (产品/管理组名称编辑弹窗)
+├── InterbankTable.vue (银行间入款未交收表格组件)
+└── 弹窗组件（通过 el-dialog 管理）
+    ├── StrategyConfigPanel.vue (策略配置面板)
+    ├── SecondaryTradePanel.vue (数据明细面板)
+    ├── RepurchaseRestrictionPanel.vue (回购限制面板)
+    ├── ProgressDetailPanel.vue (进度查询明细面板)
+    ├── CombiNameEditDialog.vue (组合名称编辑弹窗)
+    └── IntentionPreviewDialog.vue (意向预览弹窗)
+```
+
+### 4.2 组件职责说明
+
+#### 4.2.1 主页面组件（PositionPlanning.vue）
+- **职责**：作为模块的入口组件，负责整体布局和数据管理
+- **功能**：
+  - 管理表格数据（interbankData）
+  - 管理自定义列配置（customColumns）
+  - 管理显示选项（displayOptions）
+  - 处理查询、保存等核心业务逻辑
+  - 管理所有弹窗的显示状态
+  - 处理组件间的事件通信
+
+#### 4.2.2 筛选区域组件（FilterSection.vue）
+- **职责**：提供查询条件筛选和核心操作按钮
+- **功能**：
+  - 产品组、投资经理、查询状态等筛选条件
+  - 回购策略配置
+  - 试算意向、下达意向、风控试算等核心操作
+  - 显示选项控制（隐藏T+1头寸、隐藏无业务类别）
+- **通信方式**：
+  - 通过 `@query` 事件向父组件传递查询条件
+  - 通过 `@strategy-config`、`@calculate-intention` 等事件触发核心操作
+
+#### 4.2.3 表格组件（InterbankTable.vue）
+- **职责**：展示银行间入款未交收数据表格
+- **功能**：
+  - 展示多列数据（正回购到期、银行间当日交收、头寸意向等）
+  - 支持复选框选择
+  - 支持自定义列的新增和管理
+  - 处理表格内单元格的点击事件（明细查询、编辑等）
+- **通信方式**：
+  - 通过 props 接收表格数据和配置
+  - 通过事件向父组件传递用户操作（选择变化、点击明细等）
+
+#### 4.2.4 弹窗组件
+- **StrategyConfigPanel.vue**：策略配置面板，用于配置回购策略
+- **SecondaryTradePanel.vue**：数据明细面板，用于展示和编辑明细数据（支持新增明细行）
+- **RepurchaseRestrictionPanel.vue**：回购限制面板，用于设置回购限制条件
+- **ProgressDetailPanel.vue**：进度查询明细面板，用于展示进度查询明细（只读）
+- **CombiNameEditDialog.vue**：组合名称编辑弹窗，用于编辑组合名称
+- **IntentionPreviewDialog.vue**：意向预览弹窗，用于预览和下达回购意向
+
+### 4.3 数据流向
+
+#### 4.3.1 数据获取流程
+```
+用户操作 → FilterSection (查询条件) 
+  → PositionPlanning (处理查询逻辑) 
+    → API 接口调用 
+      → 数据转换处理 
+        → InterbankTable (展示数据)
+```
+
+#### 4.3.2 数据保存流程
+```
+用户编辑 → InterbankTable/弹窗组件 (收集数据) 
+  → PositionPlanning (处理保存逻辑) 
+    → API 接口调用 
+      → 保存成功后刷新数据
+```
+
+### 4.4 组件间通信方式
+
+#### 4.4.1 Props 传递（父 → 子）
+- **FilterSection** 接收：
+  - `selectedFunds`：已选中的基金列表
+- **InterbankTable** 接收：
+  - `tableData`：表格数据
+  - `tableLoading`：加载状态
+  - `hideT1Position`：是否隐藏T+1头寸
+  - `hideNoBusinessCategory`：是否隐藏无业务类别
+  - `customColumns`：自定义列配置
+- **弹窗组件** 接收：
+  - `rowData`：当前行数据
+  - `fieldCode`：字段代码
+  - `initialSummaryValue`：初始汇总值
+  - `readonly`：是否只读模式
+
+#### 4.4.2 事件传递（子 → 父）
+- **FilterSection** 触发：
+  - `@query`：查询事件
+  - `@strategy-config`：策略配置事件
+  - `@calculate-intention`：试算意向事件
+  - `@issue-intention`：下达意向事件
+  - `@risk-control`：风控试算事件
+  - `@reset-display-options`：重置显示选项事件
+- **InterbankTable** 触发：
+  - `@selection-change`：选择变化事件
+  - `@detail-click`：明细点击事件
+  - `@custom-column-added`：新增自定义列事件
+  - `@custom-column-save`：保存自定义列数据事件
+  - `@intention-saved`：头寸意向保存事件
+- **弹窗组件** 触发：
+  - `@save-success`：保存成功事件
+  - `@cancel`：取消事件
+  - `@close`：关闭事件
+
+### 4.5 状态管理
+
+#### 4.5.1 本地状态（组件内部）
+- **PositionPlanning**：
+  - `interbankData`：表格数据
+  - `customColumns`：自定义列配置
+  - `displayOptions`：显示选项
+  - `selectedFunds`：选中的基金列表
+  - 各弹窗的显示状态
+
+#### 4.5.2 全局状态（Vuex）
+- `slideFold`：左侧菜单栏折叠状态（从全局 store 获取）
+
+### 4.6 数据转换层
+
+**位置**：`PositionPlanning.vue` 中的 `transformApiDataToRowData` 方法
+
+**职责**：
+- 将后端 API 返回的数据格式转换为前端组件所需的数据格式
+- 处理空值转换（null/undefined → ""）
+- 处理嵌套数据结构（如 yesterdayPlus1SellBonds、t0Position 等）
+- 初始化自定义列数据
+
+### 4.7 API 接口管理
+
+**位置**：`src/api/modules/positionApiInvestment.js`
+
+**职责**：
+- 定义头寸规划模块的所有 API 接口
+- 统一管理接口路径
+- 通过 `http.js` 封装处理接口请求
+
+### 4.8 关键设计模式
+
+1. **单一职责原则**：每个组件只负责一个明确的功能
+2. **事件驱动**：组件间通过事件进行通信，保持松耦合
+3. **数据向下流动**：数据通过 props 从父组件传递到子组件
+4. **事件向上冒泡**：用户操作通过事件从子组件传递到父组件
+5. **集中式状态管理**：主要数据状态集中在 PositionPlanning 组件管理
