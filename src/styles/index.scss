@@ -1,0 +1,106 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 12px;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 确保按钮不受body的color影响，使用Element UI默认颜色
+/deep/ .el-button {
+  color: unset;
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
+}
+
+// 大标题样式
+h1, .title-large {
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+// 小标题样式
+h2, h3, h4, .title-small {
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+// 按钮样式：使用Element UI默认样式，不自定义字体颜色
+// Element UI按钮使用自己的颜色系统，不受全局color影响
+
+// ==================== 弹框样式规范 ====================
+// 根据 styling-guide.mdc 定义全局弹框样式
+.el-dialog {
+  // 弹框标题栏样式
+  .el-dialog__header {
+    height: 40px;
+    background-color: #f2f2f2;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  // 弹框标题文字样式（小标题）
+  .el-dialog__title {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+  }
+
+  // 弹框底部按钮区域样式
+  .el-dialog__footer {
+    padding: 10px 20px;
+    text-align: center;
+
+    .el-button {
+      margin: 0 5px;
+    }
+
+    // 主要按钮（蓝色）在左边
+    .el-button--primary {
+      order: -1;
+    }
+  }
+}
+
+// ==================== 统一弹框内容边距样式 ====================
+// 通用弹框内容边距（10px）
+.common-dialog-padding {
+  .el-dialog__body {
+    padding: 10px;
+  }
+}
+
+// 产品管理弹框特殊样式
+.product-management-dialog {
+  height: 560px;
+  margin-top: calc(50vh - 280px) !important;
+  
+  .el-dialog__body {
+    padding: 10px;
+  }
+}
+
+// 产品/管理组名称编辑弹框特殊样式
+.block-name-dialog {
+  margin-top: calc(50vh - 80px) !important;
+  
+  .el-dialog__body {
+    padding: 10px;
+  }
+}
+

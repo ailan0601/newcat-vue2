@@ -1,0 +1,70 @@
+---
+alwaysApply: true
+---
+# 技术栈要求
+
+所有项目开发必须遵循以下技术栈要求：
+
+- 使用 **Vue 2**（Options API 模式）
+- 组件库统一使用 **Element UI** 开发时要熟悉文档：https://element.eleme.cn/2.13/#/zh-CN/component/installation
+- 代码需符合 **ESLint + Prettier** 格式化规范
+- 构建工具使用 **Vue CLI** 包含路由、仓库等工具库
+- 关于vue语法请慎用watch监听数据方法，尽量用计算属性computed、父子组件传参的方式刷新数据变化
+- 样式语言使用 **SCSS**
+- 所有组件应为 **单文件组件（.vue）**，并保证高内聚、低耦合（JS 命名需要严格遵循《驼峰名》、LESS 命名需要遵循《短横杠》）
+- 界面展示使用mock 数据，建立mock文件夹与views目录同级
+- JS语法规则遵循ES6
+
+# 模块建设要求
+- 项目主界面采用顶部导航、左侧菜单栏、中间内容的布局。中间内容是路由方式引入
+- 左侧菜单栏可以收缩，仓库变量slideFold控制
+- 中间内容模块的代码结构如下：
+```js
+<template>
+   <div class="content-outer-box featrue-test" id="position-planning">
+    <div class="content-box tab-table-box cj-mini" :class="{
+      'is-fold': slideFold
+    }">
+    //模块内容
+     </div>
+  </div>
+</template>
+
+<script>
+import { mapState } from "vuex";
+computed: {
+    ...mapState(["slideFold"])
+  }
+</script>
+
+<style lang="scss" scoped>
+</style>
+```
+- 主界面上方的查询表单样式采用elementUI栅格式布局
+# elementUI 组件要求
+## 弹框
+- 每个el-dialog都要加上属性:append-to-body="true"
+
+## 选择框
+- 如果筛选条件支持多选，要加上elementUI组件el-select的属性filterable clearable multiple remote-tag collapse-tags
+
+# API接口请求说明
+- 接口请求请根据`src/api/modules`，创建【模块名】.js文件，书写api接口集合，例如：positionApiInvestment.js
+```js
+let serviceName="position-api-investment"
+const API = {
+ prodPositionStrategyRemove: serviceName+ '/prodPositionStrategy/remove', // 删除回购策略
+
+};
+export default API
+```
+并根据模块名XXX.md接口文档和请求接口封装：http.js，处理接口请求。例如：
+```js
+let url = this.API.positionApiInvestment.prodPositionStrategyRemove;
+      let param ={...}
+      await this.http.post(url, param,"application/json");
+```
+## 修改文件限制
+- 除了views外的代码是属于框架代码，每次你只能修改views下面的文件内容
+## 业务规则
+- 在金融行业，null、undefined是代表没有数据，应该转换成""，而不是"0",0会让用户误以为数值是0
