@@ -26,7 +26,9 @@ const API = {
   // 搜索证券信息
   searchStock: serviceName + '/stockInfo/searchStock',
   // 查询投研头寸明细业务类别
-  queryBusinType: serviceName + '/position/queryBusinType'
+  queryBusinType: serviceName + '/position/queryBusinType',
+  // 保存/修改回购限制
+  prodPositionRepurLimitSave: serviceName + '/prodPositionRepurLimit/save'
 }
 export default API
 

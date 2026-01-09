@@ -1,6 +1,6 @@
 <template>
   <div class="repurchase-restriction-panel">
-    <el-form :model="form" label-width="120px" size="mini">
+    <el-form :model="form" label-width="130px" size="mini">
       <el-form-item label="期限限制">
         <el-select v-model="form.termRestriction" size="mini" placeholder="请选择" style="width: 100%" clearable>
           <el-option
@@ -11,7 +11,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="正回购质押券限制">
+      <el-form-item label="正回购不可押">
         <el-select 
           v-model="form.pledgeRepoLimit" 
           size="mini" 
@@ -28,7 +28,15 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="逆回购质押券限制">
+      <el-form-item label="正回购自定义不可押">
+        <el-input
+          v-model="form.pledgeRepoBondLimit"
+          size="mini"
+          placeholder="请输入"
+          style="width: 100%"
+        />
+      </el-form-item>
+      <el-form-item label="逆回购可押">
         <el-select 
           v-model="form.reverseRepoLimit" 
           size="mini" 
@@ -66,19 +74,20 @@ export default {
         { itemId: '7D', itemName: '只能7天' },
         { itemId: '14D', itemName: '只能14天' }
       ],
-      // 正回购质押券限制下拉选项（从字典接口获取）
+      // 正回购不可押下拉选项（从字典接口获取）
       pledgeRepoOptions: [],
-      // 逆回购质押券限制下拉选项（从字典接口获取）
+      // 逆回购可押下拉选项（从字典接口获取）
       reverseRepoOptions: [],
       form: {
         termRestriction: '',
-        pledgeRepoLimit: '', // 正回购质押券限制
-        reverseRepoLimit: '' // 逆回购质押券限制
+        pledgeRepoLimit: '', // 正回购不可押
+        pledgeRepoBondLimit: '', // 正回购自定义不可押
+        reverseRepoLimit: '' // 逆回购可押
       }
     }
   },
   mounted() {
-    // 一次性加载正回购和逆回购质押券限制字典数据
+    // 一次性加载正回购不可押和逆回购可押字典数据
     this.loadPledgeRepoOptions()
   },
   watch: {
@@ -86,35 +95,33 @@ export default {
       immediate: true,
       handler(newVal) {
         if (newVal) {
-          // 优先使用 repurchaseRestrictionType（如果接口返回了）
-          if (newVal.repurchaseRestrictionType) {
-            this.form.termRestriction = newVal.repurchaseRestrictionType
-          } else if (newVal.repurchaseRestriction) {
-            // 否则从显示内容中解析
-            const restriction = newVal.repurchaseRestriction
-            if (restriction.includes('只能隔夜')) {
-              this.form.termRestriction = 'GY'
-            } else if (restriction.includes('只能7天') || restriction.includes('只能7D')) {
-              this.form.termRestriction = '7D'
-            } else if (restriction.includes('只能14天') || restriction.includes('只能14D')) {
-              this.form.termRestriction = '14D'
-            } else {
-              this.form.termRestriction = ''
-            }
+          // 从 _rawData 中获取所有字段值进行回显
+          const rawData = newVal._rawData || {}
+          
+          // 设置期限限制（从 _rawData 中获取）
+          if (rawData.repurchaseRestrictionType) {
+            this.form.termRestriction = rawData.repurchaseRestrictionType
           } else {
             this.form.termRestriction = ''
           }
           
-          // 设置正回购质押券限制（从 _rawData 中获取）
-          if (newVal._rawData && newVal._rawData.pledgeRepoLimit) {
-            this.form.pledgeRepoLimit = newVal._rawData.pledgeRepoLimit
+          // 设置正回购不可押（从 _rawData 中获取）
+          if (rawData.pledgeRepoLimit) {
+            this.form.pledgeRepoLimit = rawData.pledgeRepoLimit
           } else {
             this.form.pledgeRepoLimit = ''
           }
           
-          // 设置逆回购质押券限制（从 _rawData 中获取）
-          if (newVal._rawData && newVal._rawData.reverseRepoLimit) {
-            this.form.reverseRepoLimit = newVal._rawData.reverseRepoLimit
+          // 设置正回购自定义不可押（从 _rawData 中获取）
+          if (rawData.pledgeRepoBondLimit) {
+            this.form.pledgeRepoBondLimit = rawData.pledgeRepoBondLimit
+          } else {
+            this.form.pledgeRepoBondLimit = ''
+          }
+          
+          // 设置逆回购可押（从 _rawData 中获取）
+          if (rawData.reverseRepoLimit) {
+            this.form.reverseRepoLimit = rawData.reverseRepoLimit
           } else {
             this.form.reverseRepoLimit = ''
           }
@@ -122,6 +129,7 @@ export default {
           // 重置表单
           this.form.termRestriction = ''
           this.form.pledgeRepoLimit = ''
+          this.form.pledgeRepoBondLimit = ''
           this.form.reverseRepoLimit = ''
         }
       }
@@ -129,28 +137,28 @@ export default {
   },
   methods: {
     /**
-     * 一次性加载正回购和逆回购质押券限制字典数据
-     * 字典ID: HG_SECURITY_TYPE_CONFIG, HG_DOWN_PLEDGE_BOND_TYPE
+     * 一次性加载正回购不可押和逆回购可押字典数据
+     * 字典ID: POSITION_BOND_TYPE（正回购不可押）, HG_DOWN_PLEDGE_BOND_TYPE（逆回购可押）
      */
     async loadPledgeRepoOptions() {
       try {
         const url = this.API.common.findByDictIds
         const params = {
-          dictIds: 'HG_SECURITY_TYPE_CONFIG,HG_DOWN_PLEDGE_BOND_TYPE'
+          dictIds: 'POSITION_BOND_TYPE,HG_DOWN_PLEDGE_BOND_TYPE'
         }
         const res = await this.http.get(url, params)
         
         if (res.code == 0) {
           const body = res.body || {}
           // 分别提取两个字典的数据
-          this.pledgeRepoOptions = body.HG_SECURITY_TYPE_CONFIG || []
+          this.pledgeRepoOptions = body.POSITION_BOND_TYPE || []
           this.reverseRepoOptions = body.HG_DOWN_PLEDGE_BOND_TYPE || []
         } else {
-          this.$message.error(res.message || '加载质押券限制字典数据失败')
+          this.$message.error(res.message || '加载回购限制字典数据失败')
         }
       } catch (error) {
-        console.error('加载质押券限制字典数据失败', error)
-        this.$message.error('加载质押券限制字典数据失败')
+        console.error('加载回购限制字典数据失败', error)
+        this.$message.error('加载回购限制字典数据失败')
       }
     },
     handleCancel() {

@@ -1,15 +1,17 @@
 <template>
   <div class="secondary-trade-panel">
     <el-form :model="form" label-width="0" size="mini">
-      <el-form-item v-if="!readonly" class="summary-form-item">
+      <el-form-item class="summary-form-item">
         <label class="summary-label">汇总</label>
         <el-input 
+          v-if="!readonly"
           v-model="form.summary" 
           size="mini" 
           placeholder="请输入" 
           :disabled="hasNewRows"
           @blur="handleSummaryBlur" 
         />
+        <span v-else class="summary-readonly">{{ form.summary === '' ? '--' : form.summary }}</span>
       </el-form-item>
       <el-form-item class="table-form-item">
         <el-table 
@@ -283,19 +285,57 @@ export default {
     },
     /**
      * 根据 props 的 initialSummaryValue 设置汇总值（不使用 watch）
+     * 只读模式下直接使用表格单元格的值，与表格显示保持一致
      */
     setSummaryFromProps() {
-      if (this.initialSummaryValue != null && this.initialSummaryValue !== '') {
+      // 只读模式下，直接使用表格单元格的值，与表格显示保持一致
+      if (this.readonly) {
+        // 如果值为 null 或 undefined，显示空字符串（与表格单元格显示一致）
+        if (this.initialSummaryValue == null) {
+          this.originalSummary = 0
+          this.form.summary = ''
+          return
+        }
+        
+        // 如果值为空字符串，显示空字符串（与表格单元格显示一致）
+        if (this.initialSummaryValue === '') {
+          this.originalSummary = 0
+          this.form.summary = ''
+          return
+        }
+        
+        // 正常处理数值（包括 0），使用与表格单元格相同的格式化方式
         const summaryValue = parseFloat(this.initialSummaryValue)
-        // 如果 parseFloat 返回 NaN，则使用 0
-        const finalValue = isNaN(summaryValue) ? 0 : summaryValue
-        this.originalSummary = finalValue
-        this.form.summary = this.formatNumber(finalValue)
-      } else {
-        // 如果值为空，显示 "--"
+        if (isNaN(summaryValue)) {
+          // 如果无法解析为数字，显示原始值
+          this.originalSummary = 0
+          this.form.summary = String(this.initialSummaryValue)
+        } else {
+          // 使用与表格单元格相同的格式化方式（只添加千分符，不添加小数位）
+          this.originalSummary = summaryValue
+          this.form.summary = summaryValue.toLocaleString('zh-CN')
+        }
+        return
+      }
+      
+      // 非只读模式的处理逻辑
+      if (this.initialSummaryValue == null) {
         this.originalSummary = 0
         this.form.summary = '--'
+        return
       }
+      
+      if (this.initialSummaryValue === '') {
+        this.originalSummary = 0
+        this.form.summary = '--'
+        return
+      }
+      
+      // 正常处理数值（包括 0）
+      const summaryValue = parseFloat(this.initialSummaryValue)
+      const finalValue = isNaN(summaryValue) ? 0 : summaryValue
+      this.originalSummary = finalValue
+      this.form.summary = this.formatNumber(finalValue)
     },
     /**
      * 搜索证券信息（远程搜索）
@@ -672,6 +712,15 @@ export default {
       font-family: 'Microsoft YaHei', Arial, sans-serif;
       white-space: nowrap;
       flex-shrink: 0;
+    }
+    
+    .summary-readonly {
+      font-size: 12px;
+      color: #333;
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      padding: 0 10px;
+      line-height: 28px;
+      display: inline-block;
     }
   }
   

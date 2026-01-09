@@ -598,8 +598,8 @@ export default {
       const { row, fieldCode, fieldName } = params
       this.currentRowData = row
       
-      // 判断是否为T+0或T+1头寸测算列（只读模式）
-      const readonlyFields = ['t0PositionCalc', 't1PositionCalc']
+      // 判断是否为T+0或T+1头寸测算列、风险备付金（只读模式）
+      const readonlyFields = ['t0PositionCalc', 't1PositionCalc', 'riskProvision']
       this.isDetailDialogReadonly = readonlyFields.includes(fieldCode)
       
       // 将前端字段名映射为后端接口字段名
@@ -624,9 +624,13 @@ export default {
         't0PositionCalc': row.t0Position && row.t0Position.calculation != null ? row.t0Position.calculation : null,
         't1PositionCalc': row.t1Position && row.t1Position.calculation != null ? row.t1Position.calculation : null
       }
-      // 设置当前点击的表格数值（用于汇总输入框的初始值，只读模式下不使用）
-      // 如果值为 null 或 undefined，传递 null，让子组件处理显示 "--"
-      const summaryValue = fieldValueMap[fieldCode] != null ? fieldValueMap[fieldCode] : null
+      // 设置当前点击的表格数值（用于汇总输入框的初始值）
+      // 对于只读模式（如风险备付金），直接使用表格单元格的值，即使为空字符串也传递
+      let summaryValue = fieldValueMap[fieldCode]
+      // 如果值为 null 或 undefined，传递 null；如果是空字符串，在只读模式下也传递空字符串
+      if (summaryValue == null) {
+        summaryValue = null
+      }
       // 先更新汇总值，确保 props 传递正确
       this.currentSummaryValue = summaryValue
       
@@ -687,7 +691,7 @@ export default {
     },
     /**
      * 保存回购限制数据
-     * @param {Object} form - 回购限制表单数据
+     * 使用新接口 /prodPositionRepurLimit/save 一次性保存所有字段
      */
     async handleRepurchaseRestrictionSave() {
       if (!this.currentRowData) {
@@ -698,38 +702,29 @@ export default {
         // 从组件 ref 获取表单数据
         const form = this.$refs.repurchaseRestrictionPanelRef.form
         
-        const url = this.API.positionApiInvestment.prodPositionUpdateFieldValue
+        const url = this.API.positionApiInvestment.prodPositionRepurLimitSave
         
-        // 1. 保存期限限制（repurchaseRestrictionType）
-        const typeParams = {
-          fundCode: this.currentRowData.fundCode,
-          fieldCode: 'repurchaseRestrictionType',
-          fieldValue: form.termRestriction || ''
+        // 使用新接口，一次性保存所有字段
+        const params = {
+          productCode: this.currentRowData.fundCode, // 产品代码
+          repurchaseRestrictionType: form.termRestriction || '', // 回购期限限制
+          pledgeRepoLimit: form.pledgeRepoLimit || '', // 正回购不可押
+          pledgeRepoBondLimit: form.pledgeRepoBondLimit || '', // 正回购自定义不可押
+          reverseRepoLimit: form.reverseRepoLimit || '' // 逆回购可押
         }
-        await this.http.post(url, typeParams, 'application/json')
         
-        // 2. 保存正回购质押券限制（pledgeRepoLimit）
-        const pledgeRepoParams = {
-          fundCode: this.currentRowData.fundCode,
-          fieldCode: 'pledgeRepoLimit',
-          fieldValue: form.pledgeRepoLimit || ''
+        const res = await this.http.post(url, params, 'application/json')
+        
+        if (res.code == 0) {
+          // 关闭弹窗
+          this.repurchaseRestrictionDialogVisible = false
+          this.$message.success('回购限制保存成功')
+          
+          // 刷新主界面表格数据
+          await this.loadData()
+        } else {
+          this.$message.error(res.message || '保存回购限制失败')
         }
-        await this.http.post(url, pledgeRepoParams, 'application/json')
-        
-        // 3. 保存逆回购质押券限制（reverseRepoLimit）
-        const reverseRepoParams = {
-          fundCode: this.currentRowData.fundCode,
-          fieldCode: 'reverseRepoLimit',
-          fieldValue: form.reverseRepoLimit || ''
-        }
-        await this.http.post(url, reverseRepoParams, 'application/json')
-        
-        // 关闭弹窗
-        this.repurchaseRestrictionDialogVisible = false
-        this.$message.success('回购限制保存成功')
-        
-        // 刷新主界面表格数据
-        await this.loadData()
       } catch (error) {
         console.error('保存回购限制失败', error)
         this.$message.error('保存回购限制失败')
