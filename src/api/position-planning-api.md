@@ -61,6 +61,9 @@ pledgeRepo		正回购	java.math.BigDecimal
 reverseRepo		逆回购	java.math.BigDecimal
 repurchaseRestrictionType		回购限制类型	java.lang.String
 repurchaseRestriction		回购限制	java.lang.String
+pledgeRepoLimit		正回购质押券限制	java.lang.String
+pledgeRepoBondLimit		正回购质押券限制债券	java.lang.String
+reverseRepoLimit		逆回购质押券限制	java.lang.String
 repurchaseRestrictionContent		回购限制表格显示内容	java.lang.String
 combiId		产品组合ID	java.math.BigDecimal
 combiName		产品组合名称	java.math.BigDecimal
@@ -91,7 +94,7 @@ isIssued		是否下达（0：未下达，1：下达）	java.lang.String
 **微服务名称** 
 **POST** `/positionVerification/getInvestmentManagerList`
 **接口说明**
--更新表格数据：当日场内担保买卖、回购限制、头寸意向新增表格列数据（按单元格填写数据请求）
+-更新表格数据：当日场内担保买卖、头寸意向新增表格列数据（按单元格填写数据请求）
 **参数：**
 ```js
 let params = {}
@@ -106,7 +109,7 @@ body.rows		数据集合(rows: ["全部", "无", "孙悦", "马超"])	java.util.L
 ### 2.  更新组合持仓产品字段值
 **POST** `/prodPosition/updateFieldValue`
 **接口说明**
--更新表格数据：当日场内担保买卖、回购限制、组合名称
+-更新表格数据：当日场内担保买卖、组合名称
 **参数：**
 ```js
 let params = {
@@ -144,6 +147,25 @@ let params = {
 	productCode: '', //产品代码
 	title: '', //表头列
 	val: '', //对应列的值
+};
+```
+**响应体说明：**
+ code	0	响应码[0成功/-1失败]	java.lang.String
+ message	success	响应消息	java.lang.String
+ body		主体内容	java.lang.Object
+
+### 2.2 保存/修改回购限制
+**POST** `/prodPositionRepurLimit/save`
+**接口说明**
+-更新表格数据：回购限制
+**参数：**
+```js
+let params = {
+	productCode: '', //产品代码
+	repurchaseRestrictionType: '', //回购期限限制
+	pledgeRepoLimit: '', //正回购限制类型
+	pledgeRepoBondLimit: '', //正回购限制债券
+	reverseRepoLimit: '', //逆回购可压限制类型
 };
 ```
 **响应体说明：**

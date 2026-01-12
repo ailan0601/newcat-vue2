@@ -64,7 +64,7 @@ let params = {
 ```js
 let params = {
     type: "$os",
-    dictIds: "HG_SECURITY_TYPE_CONFIG,HG_DOWN_PLEDGE_BOND_TYPE"//查询的字典code
+    dictIds: "HG_SECURITY_TYPE_CONFIG,HG_DOWN_PLEDGE_BOND_TYPE,POSITION_BOND_TYPE"//查询的字典code
 };
 ```
 **响应体说明：**
@@ -75,3 +75,5 @@ body.HG_SECURITY_TYPE_CONFIG[].value java.lang.String  //值
 body.HG_SECURITY_TYPE_CONFIG[].name java.lang.String  //名称
 body.HG_DOWN_PLEDGE_BOND_TYPE[].value java.lang.String  //值
 body.HG_DOWN_PLEDGE_BOND_TYPE[].name java.lang.String  //名称
+body.POSITION_BOND_TYPE[].value java.lang.String  //值
+body.POSITION_BOND_TYPE[].name java.lang.String  //名称

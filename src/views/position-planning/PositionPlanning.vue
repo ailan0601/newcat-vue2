@@ -92,14 +92,14 @@
       width="600px"
       custom-class="common-dialog-padding"
       :append-to-body="true"
+      @close="handleRepurchaseRestrictionDialogClose"
     >
       <RepurchaseRestrictionPanel
         ref="repurchaseRestrictionPanelRef"
-        :row-data="currentRowData"
       />
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="handleRepurchaseRestrictionSave">保存</el-button>
-        <el-button size="mini" @click="repurchaseRestrictionDialogVisible = false">取消</el-button>
+        <el-button size="mini" @click="handleRepurchaseRestrictionDialogClose">取消</el-button>
       </div>
     </el-dialog>
 
@@ -688,6 +688,25 @@ export default {
     handleRepurchaseRestrictionClick(row) {
       this.currentRowData = row
       this.repurchaseRestrictionDialogVisible = true
+      
+      // 打开弹窗后，直接设置表单回显值
+      this.$nextTick(() => {
+        if (this.$refs.repurchaseRestrictionPanelRef && row && row._rawData) {
+          this.$refs.repurchaseRestrictionPanelRef.setFormValues(row._rawData)
+        }
+      })
+    },
+    /**
+     * 处理回购限制弹窗关闭事件，清空表单数据
+     */
+    handleRepurchaseRestrictionDialogClose() {
+      this.repurchaseRestrictionDialogVisible = false
+      // 清空表单数据
+      this.$nextTick(() => {
+        if (this.$refs.repurchaseRestrictionPanelRef) {
+          this.$refs.repurchaseRestrictionPanelRef.resetForm()
+        }
+      })
     },
     /**
      * 保存回购限制数据
@@ -722,6 +741,13 @@ export default {
           
           // 刷新主界面表格数据
           await this.loadData()
+          
+          // 清空表单数据
+          this.$nextTick(() => {
+            if (this.$refs.repurchaseRestrictionPanelRef) {
+              this.$refs.repurchaseRestrictionPanelRef.resetForm()
+            }
+          })
         } else {
           this.$message.error(res.message || '保存回购限制失败')
         }
@@ -1390,6 +1416,11 @@ export default {
   .el-button--primary {
     margin-right: 10px;
   }
+}
+
+// 设置弹窗关闭按钮样式
+/deep/ .el-dialog__headerbtn {
+  top: 0px;
 }
 </style>
 

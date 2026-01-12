@@ -22,15 +22,17 @@
         >
           <el-option
             v-for="item in pledgeRepoOptions"
-            :key="item.value"
+            :key="item.itemId"
             :label="item.name"
-            :value="item.value"
+            :value="item.itemId"
           />
         </el-select>
       </el-form-item>
       <el-form-item label="正回购自定义不可押">
         <el-input
           v-model="form.pledgeRepoBondLimit"
+          type="textarea"
+          :rows="3"
           size="mini"
           placeholder="请输入"
           style="width: 100%"
@@ -60,12 +62,6 @@
 <script>
 export default {
   name: 'RepurchaseRestrictionPanel',
-  props: {
-    rowData: {
-      type: Object,
-      default: null
-    }
-  },
   data() {
     return {
       // 回购期限类型字典数据
@@ -90,52 +86,38 @@ export default {
     // 一次性加载正回购不可押和逆回购可押字典数据
     this.loadPledgeRepoOptions()
   },
-  watch: {
-    rowData: {
-      immediate: true,
-      handler(newVal) {
-        if (newVal) {
-          // 从 _rawData 中获取所有字段值进行回显
-          const rawData = newVal._rawData || {}
-          
-          // 设置期限限制（从 _rawData 中获取）
-          if (rawData.repurchaseRestrictionType) {
-            this.form.termRestriction = rawData.repurchaseRestrictionType
-          } else {
-            this.form.termRestriction = ''
-          }
-          
-          // 设置正回购不可押（从 _rawData 中获取）
-          if (rawData.pledgeRepoLimit) {
-            this.form.pledgeRepoLimit = rawData.pledgeRepoLimit
-          } else {
-            this.form.pledgeRepoLimit = ''
-          }
-          
-          // 设置正回购自定义不可押（从 _rawData 中获取）
-          if (rawData.pledgeRepoBondLimit) {
-            this.form.pledgeRepoBondLimit = rawData.pledgeRepoBondLimit
-          } else {
-            this.form.pledgeRepoBondLimit = ''
-          }
-          
-          // 设置逆回购可押（从 _rawData 中获取）
-          if (rawData.reverseRepoLimit) {
-            this.form.reverseRepoLimit = rawData.reverseRepoLimit
-          } else {
-            this.form.reverseRepoLimit = ''
-          }
-        } else {
-          // 重置表单
-          this.form.termRestriction = ''
-          this.form.pledgeRepoLimit = ''
-          this.form.pledgeRepoBondLimit = ''
-          this.form.reverseRepoLimit = ''
-        }
-      }
-    }
-  },
   methods: {
+    /**
+     * 设置表单回显值（由父组件调用）
+     * @param {Object} rawData - 原始数据
+     */
+    setFormValues(rawData) {
+      if (!rawData) {
+        this.resetForm()
+        return
+      }
+      
+      // 设置期限限制（直接使用value值）
+      this.form.termRestriction = rawData.repurchaseRestrictionType || ''
+      
+      // 设置正回购不可押（直接使用value值）
+      this.form.pledgeRepoLimit = rawData.pledgeRepoLimit || ''
+      
+      // 设置正回购自定义不可押
+      this.form.pledgeRepoBondLimit = rawData.pledgeRepoBondLimit || ''
+      
+      // 设置逆回购可押（直接使用value值）
+      this.form.reverseRepoLimit = rawData.reverseRepoLimit || ''
+    },
+    /**
+     * 清空表单数据
+     */
+    resetForm() {
+      this.form.termRestriction = ''
+      this.form.pledgeRepoLimit = ''
+      this.form.pledgeRepoBondLimit = ''
+      this.form.reverseRepoLimit = ''
+    },
     /**
      * 一次性加载正回购不可押和逆回购可押字典数据
      * 字典ID: POSITION_BOND_TYPE（正回购不可押）, HG_DOWN_PLEDGE_BOND_TYPE（逆回购可押）
