@@ -83,9 +83,10 @@ export default {
         this.form.productName = this.rowData.fundName || ''
         this.form.productCode = this.rowData.fundCode || ''
         this.form.productId = this.rowData.fundId || '' // 保存产品ID
-        // 如果有组合ID，设置为当前选中值
-        if (this.rowData.positionIntention && this.rowData.positionIntention.combiId) {
-          this.form.combiId = this.rowData.positionIntention.combiId
+        // 如果有组合ID，设置为当前选中值（统一转换为字符串类型，兼容数字类型）
+        if (this.rowData.positionIntention && this.rowData.positionIntention.combiId != null) {
+          // 将combiId转换为字符串，确保与下拉框的value类型一致
+          this.form.combiId = String(this.rowData.positionIntention.combiId)
         } else {
           this.form.combiId = ''
         }
@@ -115,11 +116,19 @@ export default {
         // 接口返回结果直接就是一个数组
         if (res && Array.isArray(res)) {
           this.combiOptions = res.map(item => ({
-            combiId: item.combiId,
-            combiName: item.combiName,
-            combiCode: item.combiCode
+            combiId: String(item.combiId || ''), // 统一转换为字符串类型
+            combiName: item.combiName || '',
+            combiCode: item.combiCode || ''
           }))
           console.log('组合下拉框数据：', this.combiOptions)
+          
+          // 下拉框数据加载完成后，重新设置回显值（确保类型匹配）
+          if (this.form.combiId) {
+            this.$nextTick(() => {
+              // 如果form.combiId是数字类型，转换为字符串
+              this.form.combiId = String(this.form.combiId)
+            })
+          }
         } else {
           this.combiOptions = []
         }
