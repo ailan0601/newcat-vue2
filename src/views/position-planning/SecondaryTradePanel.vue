@@ -622,7 +622,9 @@ export default {
                 this.$message.warning(`第${i + 1}行：请选择证券名称`)
                 return
               }
-              if (!row.transactionAmount || parseFloat(row.transactionAmount) <= 0) {
+              // 验证交易金额是否为有效数字（支持负数）
+              const amount = parseFloat(row.transactionAmount)
+              if (!row.transactionAmount || isNaN(amount)) {
                 this.$message.warning(`第${i + 1}行：请输入有效的交易金额`)
                 return
               }

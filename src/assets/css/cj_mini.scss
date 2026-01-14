@@ -1,0 +1,221 @@
+.cj-mini {
+
+
+  // 样式重置
+  .el-button {
+    padding: 5px 8px;
+  }
+
+  .el-button+.el-button {
+    margin-left: 3px;
+  }
+
+  .el-checkbox-group {
+    font-size: 0;
+    line-height: 1;
+  }
+
+  .el-checkbox {
+    margin-right: 20px;
+  }
+
+  .el-checkbox+.el-checkbox {
+    //   margin-left: 0px;
+    //   margin-right: 20px;
+  }
+
+  $tableHei: 30px;
+
+  .el-table td,
+  .el-table th {
+    height: $tableHei;
+    padding: 0;
+  }
+
+  .el-table th>.cell {
+    height: $tableHei !important;
+    line-height: $tableHei !important;
+  }
+
+  $tabsItemHei: 30px+2;
+
+  .el-tabs__item {
+    height: $tabsItemHei;
+    line-height: $tabsItemHei;
+
+    .el-tabs__title-name {
+      line-height: -2px+$tabsItemHei;
+    }
+  }
+
+  // 拖动条
+  .splitter-pane-resizer {
+    background: transparent !important;
+
+    &.horizontal {
+      height: $tabsItemHei+10px !important;
+    }
+  }
+
+  // input
+
+
+  .el-input__inner,
+  .el-input--mini .el-input__inner {
+    height: 24px !important;
+    line-height: 24px !important;
+  }
+
+  .el-input.is-disabled .el-input__inner {
+    background-color: #f5f5f5;
+    border-color: #DCDFE6;
+    color: #666;
+  }
+
+  .el-textarea.is-disabled .el-textarea__inner {
+    background-color: #f5f5f5;
+    border-color: #DCDFE6;
+    color: #666;
+
+  }
+
+  $allHei: 24px;
+
+  .el-form-item--mini .el-form-item__content,
+  .el-form-item--mini .el-form-item__label {
+    line-height: $allHei;
+  }
+
+  .el-form-item {
+    margin-bottom: 10px !important;
+  }
+
+  .el-cascader--mini {
+    line-height: $allHei;
+  }
+
+  // 时间框
+  .el-date-editor .el-range-separator {
+    line-height: 14px;
+  }
+
+  // 分页
+  .el-pagination button,
+  .el-pagination span:not([class*=suffix]) {
+    height: $allHei;
+    line-height: $allHei;
+  }
+
+  .el-pager li {
+    height: $allHei;
+    line-height: $allHei;
+  }
+
+  .el-pagination__editor {
+    height: $allHei;
+  }
+
+  // 
+  .el-form-item__label {
+    padding: 0 8px 0 0;
+  }
+
+  // 多选
+  .el-tag.el-tag--info {
+    line-height: 16px !important;
+    height: 18px !important;
+  }
+
+
+  //
+  .el-pagination__jump {
+    margin-left: 10px !important;
+    ;
+  }
+
+  // 
+  .el-date-editor .el-range__icon {
+    line-height: 16px;
+  }
+
+
+  // form
+  .search-form {
+    .el-row {
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+
+    .el-form-item__label {
+      color: #666 !important;
+    }
+
+    .pb8 {
+      margin-bottom: 8px !important;
+    }
+  }
+
+  // pagination
+  .cj-pagination {
+    padding: 5px 0 !important;
+  }
+
+  .el-input--mini .el-input__icon {
+    line-height: 25px;
+    height: 25px;
+  }
+
+  .icon_style {
+    margin-top: -3px !important;
+    margin-right: 3px;
+  }
+
+  .el-table .cell {
+    line-height: 15px !important;
+  }
+
+  .c-yellow {
+    color: #e6a23c !important;
+  }
+
+  .c-orange {
+    color: #ff6900 !important;
+  }
+
+  .mt-4 {
+    margin-top: -2px;
+
+  }
+
+  .el-table .cell {
+    color: #666;
+  }
+}
+
+.c-blue {
+  cursor: pointer;
+}
+
+.all-stock-main {
+  display: flex;
+  flex-direction: column;
+  .stock-tag {
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 12px;
+    transform: scale(0.8);
+    &.single {
+      border: 1px solid #ffcc00;
+    }
+    &.double {
+      border: 1px solid #2196f3;
+    }
+  }
+}

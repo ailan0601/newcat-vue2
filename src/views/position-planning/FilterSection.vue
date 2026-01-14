@@ -160,15 +160,15 @@
             >
               试算意向
             </el-button>
-            <!-- 下达意向按钮 - 暂时注释 -->
-            <!-- <el-button 
+            <!-- 下达意向按钮  -->
+            <el-button 
               size="mini" 
               type="success"
               :disabled="isIssueIntentionDisabled"
               @click="handleIssueIntention"
             >
               下达意向
-            </el-button> -->
+            </el-button>
             <!-- 风控试算按钮 - 后台功能未完成，暂时注释 -->
             <!-- <el-button 
               size="mini" 

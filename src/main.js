@@ -6,10 +6,13 @@ import 'babel-polyfill'
 const Vue = window.Vue
 
 import App from './App.vue'
+import "./assets/css/base.css";
+import "./assets/css/cj_mini.scss";
 // ElementUI CSS 已在 index.html 中引入，这里不需要再次导入
 import './styles/index.scss'
 import store from './store'
 import router from '@/router'
+
 
 Vue.config.productionTip = false
 // ElementUI 已通过 CDN 全局引入并自动注册，不需要再次 Vue.use(ElementUI)
