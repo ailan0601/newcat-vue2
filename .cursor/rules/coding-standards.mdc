@@ -27,6 +27,12 @@ computed: {
 </script>
 
 <style lang="scss" scoped>
+  .content-outer-box {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 </style>
 ```
 ## 框架基础数据
